@@ -73,6 +73,25 @@ class DataAugmenter:
         """
         augmented = copy.deepcopy(example)
         
+        # Validate and convert input to string
+        if 'input' not in augmented:
+            return augmented
+        
+        # Convert input to string if it's not already
+        input_text = augmented['input']
+        if not isinstance(input_text, str):
+            # Handle None, list, or other types
+            if input_text is None:
+                return augmented
+            elif isinstance(input_text, list):
+                input_text = ' '.join(str(item) for item in input_text)
+            else:
+                input_text = str(input_text)
+        
+        # Skip augmentation if input is empty
+        if not input_text or not input_text.strip():
+            return augmented
+        
         # Choose random augmentation strategy
         strategy = random.choice([
             'synonym_replacement',
@@ -83,23 +102,31 @@ class DataAugmenter:
             'whitespace_variation',
         ])
         
-        if strategy == 'synonym_replacement':
-            augmented['input'] = self._synonym_replacement(augmented['input'])
-        elif strategy == 'word_order_variation':
-            augmented['input'] = self._word_order_variation(augmented['input'])
-        elif strategy == 'punctuation_variation':
-            augmented['input'] = self._punctuation_variation(augmented['input'])
-        elif strategy == 'number_format_variation':
-            augmented['input'] = self._number_format_variation(augmented['input'])
-        elif strategy == 'case_variation':
-            augmented['input'] = self._case_variation(augmented['input'])
-        elif strategy == 'whitespace_variation':
-            augmented['input'] = self._whitespace_variation(augmented['input'])
+        try:
+            if strategy == 'synonym_replacement':
+                augmented['input'] = self._synonym_replacement(input_text)
+            elif strategy == 'word_order_variation':
+                augmented['input'] = self._word_order_variation(input_text)
+            elif strategy == 'punctuation_variation':
+                augmented['input'] = self._punctuation_variation(input_text)
+            elif strategy == 'number_format_variation':
+                augmented['input'] = self._number_format_variation(input_text)
+            elif strategy == 'case_variation':
+                augmented['input'] = self._case_variation(input_text)
+            elif strategy == 'whitespace_variation':
+                augmented['input'] = self._whitespace_variation(input_text)
+        except Exception as e:
+            # If augmentation fails, return original
+            print(f"Warning: Augmentation failed for strategy '{strategy}': {e}")
+            augmented['input'] = input_text
         
         return augmented
     
     def _synonym_replacement(self, text: str) -> str:
         """Replace words with synonyms"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         words = text.split()
         new_words = []
         
@@ -123,6 +150,9 @@ class DataAugmenter:
     
     def _word_order_variation(self, text: str) -> str:
         """Slightly vary word order while maintaining meaning"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         # Split by common separators
         parts = re.split(r'([,;.])', text)
         
@@ -149,6 +179,9 @@ class DataAugmenter:
     
     def _punctuation_variation(self, text: str) -> str:
         """Vary punctuation"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         variations = [
             (r'\s*,\s*', ', '),  # Normalize comma spacing
             (r'\s*\.\s*', '. '),  # Normalize period spacing
@@ -164,6 +197,9 @@ class DataAugmenter:
     
     def _number_format_variation(self, text: str) -> str:
         """Vary number formats (e.g., 1000 vs 1,000 vs mil)"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         # Find numbers
         def replace_number(match):
             num = match.group()
@@ -183,6 +219,9 @@ class DataAugmenter:
     
     def _case_variation(self, text: str) -> str:
         """Vary capitalization"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         if random.random() < 0.3:
             # Randomly choose case variation
             choice = random.choice(['lower', 'title', 'original'])
@@ -194,6 +233,9 @@ class DataAugmenter:
     
     def _whitespace_variation(self, text: str) -> str:
         """Add/remove extra whitespace"""
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         # Normalize multiple spaces
         text = re.sub(r'\s+', ' ', text)
         
@@ -212,6 +254,9 @@ class DataAugmenter:
         Back-translation augmentation (requires translation API).
         This is a placeholder - implement with actual translation service if needed.
         """
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         # Would require: Spanish -> English -> Spanish
         # Using services like Google Translate API, DeepL, etc.
         # For now, return original
@@ -222,6 +267,9 @@ class DataAugmenter:
         Use contextual embeddings to replace words with similar ones.
         This is a placeholder - would require a language model.
         """
+        if not isinstance(text, str):
+            return str(text) if text is not None else ""
+        
         # Would use models like BERT to find contextually similar words
         return text
 
