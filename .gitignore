@@ -1,0 +1,5 @@
+# Ignore wandb files
+wandb/
+
+# Ignore wandb files
+wandb

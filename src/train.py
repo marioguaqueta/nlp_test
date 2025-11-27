@@ -98,22 +98,45 @@ class JsonEvaluationCallback(TrainerCallback):
         # Set model back to train mode
         self.model.train()
 
+import argparse
+
 def train():
+    parser = argparse.ArgumentParser(description="Fine-tune Qwen model")
+    parser.add_argument("--model_name", type=str, default=TARGET_MODEL, help="Model name or path")
+    parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
+    parser.add_argument("--batch_size", type=int, default=4, help="Per device training batch size")
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=4, help="Gradient accumulation steps")
+    parser.add_argument("--learning_rate", type=float, default=2e-4, help="Learning rate")
+    args = parser.parse_args()
+
+    model_name = args.model_name
+    epochs = args.epochs
+    batch_size = args.batch_size
+    gradient_accumulation_steps = args.gradient_accumulation_steps
+    learning_rate = args.learning_rate
+
     # Initialize WandB
-    wandb.init(project="canonicalization-qwen", name="qwen-finetune-run")
+    wandb.init(project="canonicalization-qwen", name="qwen-finetune-run", config={
+        "model_name": model_name,
+        "epochs": epochs,
+        "batch_size": batch_size,
+        "gradient_accumulation_steps": gradient_accumulation_steps,
+        "learning_rate": learning_rate,
+        "effective_batch_size": batch_size * gradient_accumulation_steps
+    })
 
     # Device setup
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"Using device: {device}")
 
     # Load Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(TARGET_MODEL, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     # Load Model
     model = AutoModelForCausalLM.from_pretrained(
-        TARGET_MODEL,
+        model_name,
         trust_remote_code=True,
         torch_dtype=torch.float16 if device != "cpu" else torch.float32,
         device_map="auto" if device == "cuda" else None # MPS usually handles device placement manually or via .to()
@@ -175,10 +198,10 @@ def train():
     # Training Arguments
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        per_device_train_batch_size=4,
-        gradient_accumulation_steps=4,
-        learning_rate=2e-4,
-        num_train_epochs=3,
+        per_device_train_batch_size=batch_size,
+        gradient_accumulation_steps=gradient_accumulation_steps,
+        learning_rate=learning_rate,
+        num_train_epochs=epochs,
         logging_steps=10,
         save_strategy="epoch",
         eval_strategy="no", # We use custom callback
