@@ -173,39 +173,26 @@ def train():
     print(f"\nTraining on {len(train_dataset)} examples")
     print(f"Validating on {len(eval_dataset)} examples")
 
-    # Preprocess Data with improved masking
+    # Preprocess Data - Simplified approach
     def preprocess_function(examples):
+        # Format full texts (instruction + target + EOS)
         inputs = [format_instruction({"input": inp}) for inp in examples["input"]]
         targets = examples["target"]
+        full_texts = [inp + tgt + tokenizer.eos_token for inp, tgt in zip(inputs, targets)]
         
-        # Tokenize inputs and targets separately for proper masking
-        model_inputs = tokenizer(
-            inputs,
-            max_length=args.max_seq_length,
-            truncation=True,
-            padding=False
-        )
-        
-        # Tokenize full sequences (input + target)
-        full_texts = [i + t + tokenizer.eos_token for i, t in zip(inputs, targets)]
-        full_tokenized = tokenizer(
+        # Tokenize everything together
+        tokenized = tokenizer(
             full_texts,
             max_length=args.max_seq_length,
             truncation=True,
-            padding=False
+            padding=False,  # Dynamic padding will be done by data collator
         )
         
-        # Create labels with masking on instruction part
-        labels = []
-        for i, (input_ids, full_ids) in enumerate(zip(model_inputs["input_ids"], full_tokenized["input_ids"])):
-            # Mask the instruction part (only train on the JSON output)
-            label = [-100] * len(input_ids) + full_ids[len(input_ids):]
-            # Truncate to max length
-            label = label[:args.max_seq_length]
-            labels.append(label)
+        # For causal LM, labels are the same as input_ids
+        # The model will automatically shift them internally
+        tokenized["labels"] = tokenized["input_ids"].copy()
         
-        full_tokenized["labels"] = labels
-        return full_tokenized
+        return tokenized
 
     print("\nTokenizing datasets...")
     tokenized_train = train_dataset.map(
