@@ -174,7 +174,7 @@ def train():
     print(f"\nTraining on {len(train_dataset)} examples")
     print(f"Validating on {len(eval_dataset)} examples")
 
-    # Preprocess Data - Simplified approach
+    # Preprocess Data - Fixed to handle BatchEncoding properly
     def preprocess_function(examples):
         # Format full texts (instruction + target + EOS)
         inputs = [format_instruction({"input": inp}) for inp in examples["input"]]
@@ -189,11 +189,17 @@ def train():
             padding=False,  # Dynamic padding will be done by data collator
         )
         
-        # For causal LM, labels are the same as input_ids
-        # Use deepcopy to ensure completely independent copies
-        tokenized["labels"] = copy.deepcopy(tokenized["input_ids"])
+        # Convert BatchEncoding to plain dict with independent lists
+        # This ensures no shared references with tokenizer internals
+        result = {
+            "input_ids": [list(ids) for ids in tokenized["input_ids"]],
+            "attention_mask": [list(mask) for mask in tokenized["attention_mask"]],
+        }
         
-        return tokenized
+        # Create labels as independent copy
+        result["labels"] = [list(ids) for ids in tokenized["input_ids"]]
+        
+        return result
 
     print("\nTokenizing datasets...")
     tokenized_train = train_dataset.map(
