@@ -1,5 +1,6 @@
 import os
 import torch
+import copy
 from transformers import (
     AutoModelForCausalLM, 
     AutoTokenizer, 
@@ -189,8 +190,8 @@ def train():
         )
         
         # For causal LM, labels are the same as input_ids
-        # Create proper copy for each sequence in the batch
-        tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
+        # Use deepcopy to ensure completely independent copies
+        tokenized["labels"] = copy.deepcopy(tokenized["input_ids"])
         
         return tokenized
 

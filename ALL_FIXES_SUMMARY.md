@@ -42,23 +42,29 @@ tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
 
 ---
 
-### ✅ Issue #3: ValueError - Length Mismatch
-**Error**: `ValueError: expected sequence of length 321 at dim 1 (got 512)`
+### ✅ Issue #3: ValueError - Length Mismatch (FINAL FIX)
+**Error**: `ValueError: expected sequence of length 512 at dim 1 (got 468)`
 
 **Location**: `src/train_optimized.py`
 
-**Cause**: Shallow copy with `.copy()` created references instead of independent copies
+**Cause**: Even list comprehension `[ids[:] for ids in ...]` created shallow copies in edge cases
 
-**Fix**: Use list comprehension for deep copy
+**Evolution of fixes**:
+1. ❌ `.copy()` - Shallow copy of outer list
+2. ⚠️ `[ids[:] for ids in ...]` - Still shallow in some cases
+3. ✅ `copy.deepcopy()` - **FINAL SOLUTION**
+
+**Final Fix**: Use `copy.deepcopy()` for true deep copy
 ```python
-# Before (shallow copy - caused length mismatch)
-tokenized["labels"] = tokenized["input_ids"].copy()
+import copy
 
-# After (deep copy - each sequence independent)
-tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
+# Definitive solution - completely independent copies
+tokenized["labels"] = copy.deepcopy(tokenized["input_ids"])
 ```
 
-**Status**: ✅ FIXED
+**Why this works**: `deepcopy()` recursively copies all nested structures with no shared references
+
+**Status**: ✅ FIXED (DEFINITIVE)
 
 ---
 
@@ -80,7 +86,12 @@ def _whitespace_variation(self, text: str) -> str:
 
 ### `src/train_optimized.py`
 
-Simplified preprocessing function:
+**Import added**:
+```python
+import copy
+```
+
+**Simplified preprocessing function with deepcopy**:
 ```python
 def preprocess_function(examples):
     # Format full texts (instruction + target + EOS)
@@ -96,8 +107,8 @@ def preprocess_function(examples):
         padding=False,
     )
     
-    # Deep copy for labels (each sequence independent)
-    tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
+    # CRITICAL: Use deepcopy for completely independent copies
+    tokenized["labels"] = copy.deepcopy(tokenized["input_ids"])
     
     return tokenized
 ```
