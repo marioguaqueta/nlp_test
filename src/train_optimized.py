@@ -257,12 +257,47 @@ def train():
         seed=42,
     )
 
-    # Data collator with dynamic padding
-    data_collator = DataCollatorForLanguageModeling(
-        tokenizer=tokenizer,
-        mlm=False,
-        pad_to_multiple_of=8  # Optimize for tensor cores
-    )
+    # Custom data collator to handle variable-length sequences properly
+    from transformers import default_data_collator
+    from dataclasses import dataclass
+    from typing import Any, Dict, List
+    
+    @dataclass
+    class CustomDataCollator:
+        """Custom collator that pads sequences to the same length in each batch"""
+        tokenizer: Any
+        
+        def __call__(self, features: List[Dict[str, List[int]]]) -> Dict[str, torch.Tensor]:
+            # Find max length in this batch
+            max_length = max(len(f["input_ids"]) for f in features)
+            
+            batch = {
+                "input_ids": [],
+                "attention_mask": [],
+                "labels": []
+            }
+            
+            for feature in features:
+                # Pad input_ids
+                input_ids = feature["input_ids"] + [self.tokenizer.pad_token_id] * (max_length - len(feature["input_ids"]))
+                batch["input_ids"].append(input_ids)
+                
+                # Pad attention_mask
+                attention_mask = feature["attention_mask"] + [0] * (max_length - len(feature["attention_mask"]))
+                batch["attention_mask"].append(attention_mask)
+                
+                # Pad labels (use -100 for padding tokens so they're ignored in loss)
+                labels = feature["labels"] + [-100] * (max_length - len(feature["labels"]))
+                batch["labels"].append(labels)
+            
+            # Convert to tensors
+            return {
+                "input_ids": torch.tensor(batch["input_ids"], dtype=torch.long),
+                "attention_mask": torch.tensor(batch["attention_mask"], dtype=torch.long),
+                "labels": torch.tensor(batch["labels"], dtype=torch.long)
+            }
+    
+    data_collator = CustomDataCollator(tokenizer=tokenizer)
 
     # Initialize Callback
     eval_callback = JsonEvaluationCallback(eval_dataset, tokenizer, model)
