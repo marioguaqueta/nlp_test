@@ -38,7 +38,7 @@ labels = [[[1, 2, 3]], [[4, 5, 6]]]  # Nested lists
 Simplified the preprocessing to use the standard causal LM approach:
 
 ```python
-# FIXED CODE
+# FIXED CODE (Version 2 - Final)
 def preprocess_function(examples):
     # Format full texts (instruction + target + EOS)
     inputs = [format_instruction({"input": inp}) for inp in examples["input"]]
@@ -54,11 +54,34 @@ def preprocess_function(examples):
     )
     
     # For causal LM, labels = input_ids
-    # The model shifts them internally during training
-    tokenized["labels"] = tokenized["input_ids"].copy()
+    # IMPORTANT: Use list comprehension to properly copy each sequence
+    tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
     
     return tokenized
 ```
+
+### Important Note: Shallow Copy Issue
+
+**First attempt** used `.copy()`:
+```python
+tokenized["labels"] = tokenized["input_ids"].copy()  # WRONG!
+```
+
+**Problem**: This creates a shallow copy, which means:
+- `tokenized["input_ids"]` is a list of lists: `[[1,2,3], [4,5,6]]`
+- `.copy()` copies the outer list but references the same inner lists
+- When the data collator modifies one, it affects both
+- Results in length mismatches: `expected sequence of length 321 at dim 1 (got 512)`
+
+**Correct approach** uses list comprehension:
+```python
+tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]  # CORRECT!
+```
+
+This creates a **deep copy** of each sequence:
+- Each inner list is independently copied
+- Modifications don't affect the original
+- Proper tensor creation with consistent lengths
 
 ## Why This Works
 

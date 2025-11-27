@@ -189,8 +189,8 @@ def train():
         )
         
         # For causal LM, labels are the same as input_ids
-        # The model will automatically shift them internally
-        tokenized["labels"] = tokenized["input_ids"].copy()
+        # Create proper copy for each sequence in the batch
+        tokenized["labels"] = [ids[:] for ids in tokenized["input_ids"]]
         
         return tokenized
 
