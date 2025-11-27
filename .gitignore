@@ -3,3 +3,4 @@ wandb/
 
 # Ignore wandb files
 wandb
+scripts.sh
