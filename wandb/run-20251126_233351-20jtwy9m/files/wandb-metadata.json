@@ -1,0 +1,33 @@
+{
+  "os": "macOS-15.7-arm64-arm-64bit-Mach-O",
+  "python": "CPython 3.13.7",
+  "startedAt": "2025-11-27T04:33:51.198192Z",
+  "program": "/Users/marioguaqueta/Desktop/MAIA/2025-4/Modelos Avanzados PLN/CompetenciaFinal/src/train.py",
+  "codePath": "src/train.py",
+  "codePathLocal": "src/train.py",
+  "email": "jorgemarioguaqueta@gmail.com",
+  "root": "/Users/marioguaqueta/Desktop/MAIA/2025-4/Modelos Avanzados PLN/CompetenciaFinal",
+  "host": "Marios-MacBook-Pro.local",
+  "executable": "/Users/marioguaqueta/Desktop/MAIA/2025-4/Modelos Avanzados PLN/CompetenciaFinal/pln/bin/python",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "994662584320",
+      "used": "884958482432"
+    }
+  },
+  "memory": {
+    "total": "68719476736"
+  },
+  "apple": {
+    "name": "Apple M2 Max",
+    "ecpuCores": 4,
+    "pcpuCores": 8,
+    "gpuCores": 38,
+    "memoryGb": 64,
+    "swapTotalBytes": "18253611008",
+    "ramTotalBytes": "68719476736"
+  },
+  "writerId": "wccvwv26pr5p8aw4o2sqeemjvi8gg92j"
+}

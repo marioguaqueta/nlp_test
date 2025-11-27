@@ -1,0 +1,39 @@
+Using device: mps
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable params: 1,146,880 || all params: 597,196,800 || trainable%: 0.1920
+Found 9 training files in train/train
+Training on 8100 examples, Validating on 900 examples
+Map: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 8100/8100 [00:04<00:00, 1931.19 examples/s]
+/Users/marioguaqueta/Desktop/MAIA/2025-4/Modelos Avanzados PLN/CompetenciaFinal/pln/lib/python3.13/site-packages/transformers/training_args.py:2301: UserWarning: `use_mps_device` is deprecated and will be removed in version 5.0 of 🤗 Transformers. `mps` device will be used by default if available similar to the way `cuda` device is used.Therefore, no action from user is required.
+  warnings.warn(
+  0%|                                                                                                                                                                                                    | 0/1521 [00:00<?, ?it/s]/Users/marioguaqueta/Desktop/MAIA/2025-4/Modelos Avanzados PLN/CompetenciaFinal/pln/lib/python3.13/site-packages/torch/utils/data/dataloader.py:692: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  warnings.warn(warn_msg)
+ 18%|█████████████████████████████████▊                                                                                                                                                      | 280/1521 [51:52<3:52:37, 11.25s/it]
+{'loss': 92.8899, 'grad_norm': nan, 'learning_rate': 0.0001988165680473373, 'epoch': 0.02}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019750164365548982, 'epoch': 0.04}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019618671926364235, 'epoch': 0.06}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019487179487179487, 'epoch': 0.08}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019355687047994743, 'epoch': 0.1}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019224194608809993, 'epoch': 0.12}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00019092702169625248, 'epoch': 0.14}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.000189612097304405, 'epoch': 0.16}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00018829717291255754, 'epoch': 0.18}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00018698224852071007, 'epoch': 0.2}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.0001856673241288626, 'epoch': 0.22}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00018435239973701512, 'epoch': 0.24}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00018303747534516768, 'epoch': 0.26}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.0001817225509533202, 'epoch': 0.28}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00018040762656147273, 'epoch': 0.3}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017909270216962526, 'epoch': 0.32}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017777777777777779, 'epoch': 0.34}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017646285338593031, 'epoch': 0.36}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017514792899408287, 'epoch': 0.38}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017383300460223537, 'epoch': 0.4}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017251808021038792, 'epoch': 0.41}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00017120315581854045, 'epoch': 0.43}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00016988823142669298, 'epoch': 0.45}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.0001685733070348455, 'epoch': 0.47}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00016725838264299803, 'epoch': 0.49}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00016594345825115056, 'epoch': 0.51}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00016462853385930312, 'epoch': 0.53}
+{'loss': 0.0, 'grad_norm': nan, 'learning_rate': 0.00016331360946745562, 'epoch': 0.55}
