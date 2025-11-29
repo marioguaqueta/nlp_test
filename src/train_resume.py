@@ -154,9 +154,13 @@ def train():
             low_cpu_mem_usage=True
         )
         
-        # Load LoRA adapter
-        model = PeftModel.from_pretrained(model, args.resume_from)
-        print("✓ Loaded existing LoRA adapter")
+        # Load LoRA adapter with is_trainable=True
+        model = PeftModel.from_pretrained(
+            model, 
+            args.resume_from,
+            is_trainable=True  # CRITICAL: Enable training mode
+        )
+        print("✓ Loaded existing LoRA adapter in training mode")
         
     else:
         print(f"\nLoading base model: {args.model_name}")
@@ -183,6 +187,9 @@ def train():
     
     if device == "mps":
         model.to(device)
+    
+    # Ensure model is in training mode
+    model.train()
     
     model.print_trainable_parameters()
 
