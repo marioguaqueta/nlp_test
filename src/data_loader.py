@@ -3,12 +3,14 @@ from datasets import Dataset
 import json
 import glob
 import os
+from text_preprocessing import clean_text
 
-def load_data(train_path, test_path=None):
+def load_data(train_path, test_path=None, preprocess_text=True):
     """
     Loads train and test data.
     train_path: Path to the directory containing JSON training files (e.g., 'data/train/train')
     test_path: Path to the CSV test file (e.g., 'data/test.csv')
+    preprocess_text: Whether to decode Unicode escapes and HTML entities
     """
     
     # Load Train
@@ -26,8 +28,14 @@ def load_data(train_path, test_path=None):
                             data = json.load(json_file)
                             # data is a list of objects
                             for item in data:
+                                input_text = item["natural_language"]
+                                
+                                # Preprocess text to decode Unicode escapes
+                                if preprocess_text:
+                                    input_text = clean_text(input_text)
+                                
                                 all_data.append({
-                                    "input": item["natural_language"],
+                                    "input": input_text,
                                     "target": json.dumps(item["json_data"], ensure_ascii=False)
                                 })
                     except Exception as e:
@@ -36,6 +44,8 @@ def load_data(train_path, test_path=None):
                 if all_data:
                     df_train = pd.DataFrame(all_data)
                     train_dataset = Dataset.from_pandas(df_train)
+                    if preprocess_text:
+                        print(f"✓ Preprocessed {len(all_data)} training examples (decoded Unicode)")
                 else:
                     print("No training data found in JSON files.")
             else:
@@ -46,6 +56,12 @@ def load_data(train_path, test_path=None):
                     df_train.rename(columns={'text': 'input'}, inplace=True)
                 if 'target' not in cols and 'json' in cols:
                     df_train.rename(columns={'json': 'target'}, inplace=True)
+                
+                # Preprocess text
+                if preprocess_text and 'input' in df_train.columns:
+                    df_train['input'] = df_train['input'].apply(clean_text)
+                    print(f"✓ Preprocessed {len(df_train)} training examples (decoded Unicode)")
+                
                 train_dataset = Dataset.from_pandas(df_train)
 
         except Exception as e:
@@ -63,12 +79,26 @@ def load_data(train_path, test_path=None):
                 # We need to rename 'natural_language' to 'input' to match the pipeline
                 for item in data:
                     if 'natural_language' in item:
-                        item['input'] = item['natural_language']
+                        input_text = item['natural_language']
+                        
+                        # Preprocess text to decode Unicode escapes
+                        if preprocess_text:
+                            input_text = clean_text(input_text)
+                        
+                        item['input'] = input_text
                 
                 df_test = pd.DataFrame(data)
                 test_dataset = Dataset.from_pandas(df_test)
+                if preprocess_text:
+                    print(f"✓ Preprocessed {len(data)} test examples (decoded Unicode)")
             else:
                 df_test = pd.read_csv(test_path)
+                
+                # Preprocess text
+                if preprocess_text and 'input' in df_test.columns:
+                    df_test['input'] = df_test['input'].apply(clean_text)
+                    print(f"✓ Preprocessed {len(df_test)} test examples (decoded Unicode)")
+                
                 test_dataset = Dataset.from_pandas(df_test)
         except Exception as e:
             print(f"Error loading test data: {e}")
